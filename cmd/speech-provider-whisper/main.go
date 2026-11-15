@@ -65,7 +65,11 @@ func main() {
 
 func healthcheck(base string) {
 	client := &http.Client{Timeout: 3 * time.Second}
-	resp, err := client.Get(base + provider.PathHealth)
+	req, _ := http.NewRequest(http.MethodGet, base+provider.PathHealth, nil)
+	if token := os.Getenv("PROVIDER_TOKEN"); token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
+	resp, err := client.Do(req)
 	if err != nil || resp.StatusCode != http.StatusOK {
 		if err != nil {
 			log.Print(err)
